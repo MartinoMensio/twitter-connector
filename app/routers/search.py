@@ -38,3 +38,19 @@ async def search_friends(screen_name: str, limit: int = None):
         else:
             # unhandled, something else
             raise e
+
+@router.get('/user', response_model=classes.User)
+async def search_user(screen_name: str):
+    try:
+        print(screen_name)
+        user = entity_manager.get_user_from_screen_name(screen_name)
+        return user
+    except Exception as e:
+        error = e.args[0]
+        print(error, type(error))
+        if 'twitter' in error:
+            # known error, comes from the twitter API
+            raise HTTPException(404, error['twitter'])
+        else:
+            # unhandled, something else
+            raise e

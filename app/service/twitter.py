@@ -1,12 +1,8 @@
 import os
 import requests
-import twitterscraper
 import logging
 
 from . import persistence
-
-scraper_logger = logging.getLogger('twitterscraper')
-scraper_logger.setLevel(logging.WARNING)
 
 
 class TwitterAPI(object):
@@ -209,13 +205,3 @@ class TwitterAPI(object):
 def split_in_chunks(iterable, chunk_size):
     for i in range(0, len(iterable), chunk_size):
         yield iterable[i:i+chunk_size]
-
-def search(query):
-    # The twitter API is limited in time, let's use the twitterscraper
-    response = {'statuses': twitterscraper.query_tweets(query)}
-    # params = {
-    #     'q': query,
-    #     'count': 100
-    # }
-    # response = self.perform_get({'url': 'https://api.twitter.com/1.1/search/tweets.json', 'params': params})
-    return response
