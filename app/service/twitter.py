@@ -189,6 +189,7 @@ class TwitterAPI(object):
     @_cached_database_list(persistence.get_twitter_user, persistence.save_twitter_user)
     def get_users_lookup(self, id_list):
         # TODO docs say to use POST for larger requests
+        # TODO cache flag to disable old results!!!
         result = []
         for chunk in split_in_chunks(id_list, 100):
             params = {
@@ -202,6 +203,29 @@ class TwitterAPI(object):
         #print(result)
         return result
 
+    @_cached_database_list(persistence.get_tweet, persistence.save_tweet)
+    def get_statuses_lookup(self, tweet_ids):
+        # TODO docs say to use POST for larger requests
+        result = []
+        for chunk in split_in_chunks(tweet_ids, 100):
+            params = {
+                'id': ','.join([str(el) for el in chunk]),
+                'tweet_mode': 'extended' # no truncated tweets
+            }
+            try:
+                response = self.perform_get({'url': 'https://api.twitter.com/1.1/statuses/lookup.json', 'params': params})
+                result.extend(response)
+            except:
+                print('failed get_statuses_lookup', response)
+                pass
+        #print(result)
+        return result
+
 def split_in_chunks(iterable, chunk_size):
     for i in range(0, len(iterable), chunk_size):
         yield iterable[i:i+chunk_size]
+
+def search(query):
+    # TODO this will crash, install twitterscraper and find a good way to make it faster
+    raise NotImplementedError()
+    #response = {'statuses': twitterscraper.query_tweets(query)}

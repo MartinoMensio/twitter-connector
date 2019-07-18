@@ -47,3 +47,10 @@ def get_twitter_user(id):
 def save_twitter_user(user):
     user['_id'] = user['id']
     return replace_safe(twitter_users, user)
+
+def get_tweet(tweet_id):
+    return twitter_users.find_one({'_id': tweet_id})
+
+def save_tweet(tweet):
+    tweet['_id'] = tweet['id']
+    return replace_safe(twitter_users, tweet)
