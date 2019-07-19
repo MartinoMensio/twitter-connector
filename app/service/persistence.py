@@ -49,8 +49,8 @@ def save_twitter_user(user):
     return replace_safe(twitter_users, user)
 
 def get_tweet(tweet_id):
-    return twitter_users.find_one({'_id': tweet_id})
+    return twitter_tweets.find_one({'_id': tweet_id})
 
 def save_tweet(tweet):
     tweet['_id'] = tweet['id']
-    return replace_safe(twitter_users, tweet)
+    return replace_safe(twitter_tweets, tweet)
