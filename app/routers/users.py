@@ -11,18 +11,10 @@ router = APIRouter()
 async def get_user(user_id: int):
     # TODO delete
     """Returns the user object corresponding to the user_id"""
-    try:
-        user = entity_manager.get_user(user_id)
-        return user
-    except Exception as e:
-        error = e.args[0]
-        print(error, type(error))
-        if 'twitter' in error:
-            # known error, comes from the twitter API
-            raise HTTPException(404, error['twitter'])
-        else:
-            # unhandled, something else
-            raise e
+    user = entity_manager.get_user(user_id)
+    if not user:
+        raise HTTPException(404, 'User not found.')
+    return user
 
 
 @router.get('/{user_id}/tweets', response_model=List[classes.TweetWithLinks])
@@ -35,7 +27,7 @@ async def get_tweets_from_user(user_id: int):
         print(error, type(error))
         if 'twitter' in error:
             # known error, comes from the twitter API
-            raise HTTPException(404, error['twitter'])
+            raise HTTPException(404, error['twitter']['message'])
         else:
             # unhandled, something else
             raise e

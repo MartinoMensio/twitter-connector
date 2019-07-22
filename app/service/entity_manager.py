@@ -23,7 +23,10 @@ def get_user_from_screen_name(screen_name):
 
 def get_user(user_id):
     # TODO flag for cache
-    user = api.get_users_lookup([user_id])[0]
+    users = api.get_users_lookup([user_id])
+    if not users:
+        return None
+    user = users[0]
     _user_add_fields(user)
     return user
 
@@ -53,6 +56,10 @@ def search_tweets_with_url(url):
 
 def get_tweet(tweet_id):
     # tweets can't change, so cache always
-    tweet = api.get_statuses_lookup([tweet_id])[0]
+    tweets = api.get_statuses_lookup([tweet_id])
+    if not tweets:
+        return None
+    tweet = tweets[0]
+    print(tweet)
     _tweet_add_fields(tweet)
     return tweet

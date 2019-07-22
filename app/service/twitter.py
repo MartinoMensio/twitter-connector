@@ -53,7 +53,7 @@ class TwitterAPI(object):
                     else:
                         # not my problem!
                         raise e
-            raise Exception('all your twitter credentials have exceeded limits!!!')
+            raise Exception('Exceeded limits for the twitter API. Try later.')
         return magic
 
     def _cursor_request(self, url, headers={}, params={}, partial_field_name='ids', limit=None):
@@ -100,7 +100,9 @@ class TwitterAPI(object):
         if 'errors' in response or 'error' in response:
             if 'errors' in response:
                 response = {'error': response['errors'][0]}
-            raise Exception({'twitter': response['error']})
+            if 'message' in response['error']:
+                raise Exception({'twitter': response['error']})
+            raise Exception({'twitter': {'message': response['error']}})
 
         return response
 
@@ -142,7 +144,7 @@ class TwitterAPI(object):
             return wrapped_f
         return wrap
 
-    def get_user_tweets(self, user_id):
+    def get_user_tweets(self, user_id, catch=False):
         params = {
             'user_id': user_id,
             'max_count': 200,
@@ -159,6 +161,8 @@ class TwitterAPI(object):
                 response = self.perform_get({'url': 'https://api.twitter.com/1.1/statuses/user_timeline.json', 'params': params})
             except Exception as e:
                 print(e)
+                if not catch:
+                    raise e
                 return all_tweets
 
             print('.', end='', flush=True)

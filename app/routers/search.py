@@ -17,7 +17,7 @@ async def search_tweets(screen_name: str = None, link: UrlStr = None):
             print(error, type(error))
             if 'twitter' in error:
                 # known error, comes from the twitter API
-                raise HTTPException(404, error['twitter'])
+                raise HTTPException(404, error['twitter']['message'])
             else:
                 # unhandled, something else
                 raise e
@@ -34,7 +34,7 @@ async def search_friends(screen_name: str, limit: int = None):
         print(error, type(error))
         if 'twitter' in error:
             # known error, comes from the twitter API
-            raise HTTPException(404, error['twitter'])
+            raise HTTPException(404, error['twitter']['message'])
         else:
             # unhandled, something else
             raise e
@@ -50,7 +50,7 @@ async def search_user(screen_name: str):
         print(error, type(error))
         if 'twitter' in error:
             # known error, comes from the twitter API
-            raise HTTPException(404, error['twitter'])
+            raise HTTPException(404, error['twitter']['message'])
         else:
             # unhandled, something else
             raise e
