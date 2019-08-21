@@ -4,8 +4,8 @@ from pydantic import BaseModel, UrlStr
 class User(BaseModel):
     screen_name: str
     id: int
-    image: UrlStr
-    image_full: UrlStr
+    image: str # some profiles can have an empty string (temporarily unavailable because it violates the Twitter Media Policy)
+    image_full: str
 
 class Tweet(BaseModel):
     id: int

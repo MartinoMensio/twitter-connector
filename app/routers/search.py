@@ -28,7 +28,8 @@ async def search_tweets(screen_name: str = None, link: UrlStr = None):
 async def search_friends(screen_name: str, limit: int = None):
     try:
         print(screen_name)
-        return entity_manager.get_friends_from_screen_name(screen_name, limit)
+        result = entity_manager.get_friends_from_screen_name(screen_name, limit)
+        return result
     except Exception as e:
         error = e.args[0]
         print(error, type(error))
