@@ -7,7 +7,7 @@ from ..model import classes
 
 router = APIRouter()
 
-@router.get('/tweets', response_model=List[classes.TweetWithLinks])
+@router.get('/tweets', response_model=List[classes.Tweet])
 async def search_tweets(screen_name: str = None, link: UrlStr = None):
     if screen_name:
         try:

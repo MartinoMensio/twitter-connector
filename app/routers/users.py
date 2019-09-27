@@ -17,7 +17,7 @@ async def get_user(user_id: int):
     return user
 
 
-@router.get('/{user_id}/tweets', response_model=List[classes.TweetWithLinks])
+@router.get('/{user_id}/tweets', response_model=List[classes.Tweet])
 async def get_tweets_from_user(user_id: int):
     """Returns the tweets from the provided user_id"""
     try:

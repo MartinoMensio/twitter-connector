@@ -13,7 +13,13 @@ def _tweet_add_fields(tweet):
     #print(tweet)
     tweet['text'] = tweet.get('full_text', tweet.get('text', ''))
     tweet['links'] = [u['expanded_url'] for u in tweet['entities']['urls']]
-    tweet['retweet'] = 'retweeted_status' in tweet
+    retweet = 'retweeted_status' in tweet
+    tweet['retweet'] = retweet
+    tweet['user_id'] = tweet['user']['id']
+    tweet['user_screen_name'] = tweet['user']['screen_name']
+    if retweet:
+        _tweet_add_fields(tweet['retweeted_status'])
+        tweet['retweet_source_tweet'] = tweet['retweeted_status']
 
 def get_user_from_screen_name(screen_name):
     user = api.get_user_from_screen_name(screen_name)
