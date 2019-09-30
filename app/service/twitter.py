@@ -188,7 +188,7 @@ class TwitterAPI(object):
     def get_friends_ids(self, user_id, limit=None):
         params = {
             'user_id': user_id,
-            'count': 200
+            'count': limit
         }
         response = self._cursor_request('https://api.twitter.com/1.1/friends/ids.json', params=params, limit=limit)
         return response
