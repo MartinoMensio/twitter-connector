@@ -19,7 +19,11 @@ Add as many credentials as possible
 
 ## Docker commands
 
-build the container: `docker build -t mm34834/twitter_connector .`
+build the container:
+
+```bash
+docker build -t mm34834/twitter_connector .
+```
 
 Run the container:
 

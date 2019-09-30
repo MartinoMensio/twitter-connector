@@ -66,11 +66,9 @@ def search_tweets_with_url(url):
     else:
         tweets_ids_already_here = []
     print('already', len(tweets_ids_already_here), 'tweets for', url)
-    # find the latest (created_at needs parsing with)
-    tweets_already_here = get_tweets(tweets_ids_already_here)
-    # get the date of creation
-    if tweets_already_here:
-        most_recent_datetime = max([parser.parse(t['created_at']) for t in tweets_already_here])
+    # use the date of the last search
+    if tweets_ids_already_here:
+        most_recent_datetime = old_result['updated']
     else:
         most_recent_datetime = None
     print('most_recent_date', most_recent_datetime)
