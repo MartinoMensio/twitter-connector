@@ -1,6 +1,7 @@
 import re
+from dateutil import parser
 
-from . import twitter
+from . import twitter, persistence
 
 
 api = twitter.TwitterAPI()
@@ -58,7 +59,29 @@ def get_friends_from_screen_name(screen_name, limit):
     return [get_user(user_id) for user_id in friends_ids]
 
 def search_tweets_with_url(url):
-    return twitter.search(url)
+    # see if we already have some tweets from previous search
+    old_result = persistence.get_tweets_ids_by_url(url)
+    if old_result:
+        tweets_ids_already_here = old_result['tweets_ids']
+    else:
+        tweets_ids_already_here = []
+    print('already', len(tweets_ids_already_here), 'tweets for', url)
+    # find the latest (created_at needs parsing with)
+    tweets_already_here = get_tweets(tweets_ids_already_here)
+    # get the date of creation
+    if tweets_already_here:
+        most_recent_datetime = max([parser.parse(t['created_at']) for t in tweets_already_here])
+    else:
+        most_recent_datetime = None
+    print('most_recent_date', most_recent_datetime)
+    tweets_ids =  twitter.search(url, most_recent_datetime)
+    print('retrieved', len(tweets_ids), 'for', url)
+    # now merge the list of tweets_ids, removing duplicates (same boundary date)
+    all_tweets_ids = list(set(tweets_ids_already_here + tweets_ids))
+    persistence.save_tweets_ids_by_url(url, all_tweets_ids)
+    print('saving', len(all_tweets_ids), 'tweets for', url)
+    # should also sort by time?
+    return get_tweets(all_tweets_ids)
 
 def get_tweet(tweet_id):
     # tweets can't change, so cache always
@@ -69,3 +92,11 @@ def get_tweet(tweet_id):
     print(tweet)
     _tweet_add_fields(tweet)
     return tweet
+
+def get_tweets(tweets_ids):
+    tweets = api.get_statuses_lookup(tweets_ids)
+    for t in tweets:
+        if not t:
+            continue
+        _tweet_add_fields(t)
+    return tweets

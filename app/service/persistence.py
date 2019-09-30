@@ -15,6 +15,7 @@ client = MongoClient(MONGO_URI)
 db_twitter = client['test_coinform']
 twitter_tweets = db_twitter['twitter_tweets']
 twitter_users = db_twitter['twitter_users']
+tweets_by_url = db_twitter['tweets_id_by_url']
 
 def replace_safe(collection, document, key_property='_id'):
     document['updated'] = datetime.datetime.now()
@@ -54,3 +55,10 @@ def get_tweet(tweet_id):
 def save_tweet(tweet):
     tweet['_id'] = tweet['id']
     return replace_safe(twitter_tweets, tweet)
+
+def get_tweets_ids_by_url(url):
+    return tweets_by_url.find_one({'_id': url})
+
+def save_tweets_ids_by_url(url, tweets_ids):
+    document = {'_id': url, 'url': url, 'tweets_ids': tweets_ids, 'updated': datetime.datetime.now()}
+    return tweets_by_url.replace_one({'_id': document['_id']}, document, upsert=True)

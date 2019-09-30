@@ -1,9 +1,12 @@
 import os
 import requests
 import logging
+import twitterscraper
 
 from . import persistence
 
+logger = logging.getLogger('twitterscraper')
+logger.setLevel(logging.WARNING)
 
 class TwitterAPI(object):
 
@@ -153,7 +156,7 @@ class TwitterAPI(object):
         newest_saved = 0
         #print('user id', user['id'])
         all_tweets = list(persistence.get_tweets_from_user_id(user_id))
-        #print('tweets found', len(all_tweets))
+        # print('tweets found', len(all_tweets))
         if all_tweets:
             newest_saved = max([t['id'] for t in all_tweets])
         while True:
@@ -229,7 +232,10 @@ def split_in_chunks(iterable, chunk_size):
     for i in range(0, len(iterable), chunk_size):
         yield iterable[i:i+chunk_size]
 
-def search(query):
-    # TODO this will crash, install twitterscraper and find a good way to make it faster
-    raise NotImplementedError()
-    #response = {'statuses': twitterscraper.query_tweets(query)}
+def search(query, after_datetime):
+    if after_datetime:
+        print('after_date', after_datetime)
+        response = twitterscraper.query_tweets(query, begindate=after_datetime.date())
+    else:
+        response = twitterscraper.query_tweets(query)
+    return [t.tweet_id for t in response]

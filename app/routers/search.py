@@ -8,11 +8,13 @@ from ..model import classes
 router = APIRouter()
 
 @router.get('/tweets', response_model=List[classes.Tweet])
-async def search_tweets(screen_name: str = None, link: UrlStr = None):
+async def search_tweets(screen_name: str = None, url: UrlStr = None):
     if screen_name:
         try:
             return entity_manager.get_user_tweets_from_screen_name(screen_name)
         except Exception as e:
+            if not e.args:
+                raise e
             error = e.args[0]
             print(error, type(error))
             if 'twitter' in error:
@@ -21,8 +23,8 @@ async def search_tweets(screen_name: str = None, link: UrlStr = None):
             else:
                 # unhandled, something else
                 raise e
-    elif link:
-        raise NotImplementedError('AAAHHH')
+    elif url:
+        return entity_manager.search_tweets_with_url(url)
 
 @router.get('/friends', response_model=List[classes.User])
 async def search_friends(screen_name: str, limit: int = None):
