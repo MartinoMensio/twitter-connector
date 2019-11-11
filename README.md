@@ -29,7 +29,7 @@ Run the container:
 
 locally:
 ```
-docker run -dit --restart always --name mm34834_twitter_connector --network=twitter_app_default -p 20200:8000 -e MONGO_HOST=mongo:27017 -v `pwd`:/app --link=twitter_app_mongo_1:mongo mm34834/twitter_connector
+docker run -dit --restart always --name mm34834_twitter_connector -p 20200:8000 -e MONGO_HOST=mongo:27017 -v `pwd`:/app --link=mongo:mongo mm34834/twitter_connector
 ```
 
 ```
