@@ -27,6 +27,7 @@ class TwitterAPI(object):
             self.credentials.append({'key': key, 'secret': secret})
             token = self.get_bearer_token(key, secret)
             self.bearer_tokens.append(token)
+            self.alive = True
             self.active += 1
         if not self.bearer_tokens:
             raise ValueError('you don\'t have twitter credentials in the environment!!!')
@@ -46,7 +47,9 @@ class TwitterAPI(object):
             while retries_available:
                 try:
                     # pylint: disable=not-callable
-                    return func(self, arg)
+                    result = func(self, arg)
+                    self.alive = True
+                    return result
                 except ValueError as e:
                     if str(e) == '88':
                         # try with another token
@@ -56,6 +59,7 @@ class TwitterAPI(object):
                     else:
                         # not my problem!
                         raise e
+            self.alive = False
             raise Exception('Exceeded limits for the twitter API. Try later.')
         return magic
 

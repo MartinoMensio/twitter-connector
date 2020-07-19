@@ -17,6 +17,7 @@ async def search_tweets(screen_name: str = None, url: UrlStr = None):
                 raise e
             error = e.args[0]
             print(error, type(error))
+            # TODO fix TypeError: argument of type 'MaxRetryError' is not iterable
             if 'twitter' in error:
                 # known error, comes from the twitter API
                 raise HTTPException(404, error['twitter']['message'])

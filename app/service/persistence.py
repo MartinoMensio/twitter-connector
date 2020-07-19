@@ -62,3 +62,6 @@ def get_tweets_ids_by_url(url):
 def save_tweets_ids_by_url(url, tweets_ids):
     document = {'_id': url, 'url': url, 'tweets_ids': tweets_ids, 'updated': datetime.datetime.now()}
     return tweets_by_url.replace_one({'_id': document['_id']}, document, upsert=True)
+
+def ping_db():
+    return db_twitter.command('ping')
