@@ -152,17 +152,20 @@ class TwitterAPI(object):
         return wrap
 
     def get_user_tweets(self, user_id, catch=False):
+        old_tweets = persistence.get_tweets_from_user_id(user_id)
+        print(len(old_tweets), 'old tweets')
         params = {
             'user_id': user_id,
-            'max_count': 200,
-            'tweet_mode': 'extended' # to get the full content and all the URLs
+            'count': 200,
+            'trim_user': True, # lighter response
+            'include_rts': 1, # also native retweets
+            'exclude_replies': 'false', # also replies to other tweets
+            'tweet_mode': 'extended', # to get the full content and all the URLs
         }
-        newest_saved = 0
-        #print('user id', user['id'])
-        all_tweets = list(persistence.get_tweets_from_user_id(user_id))
-        # print('tweets found', len(all_tweets))
-        if all_tweets:
-            newest_saved = max([t['id'] for t in all_tweets])
+        # limit backwards (if already collected)
+        newest_saved = persistence.get_latest_tweet_id(user_id)
+        if newest_saved:
+            params['since_id'] = newest_saved
         while True:
             try:
                 response = self.perform_get({'url': 'https://api.twitter.com/1.1/statuses/user_timeline.json', 'params': params})
@@ -173,17 +176,18 @@ class TwitterAPI(object):
                 return all_tweets
 
             print('.', end='', flush=True)
-            #print(response)
-            new_tweets = [t for t in response if t['id'] > newest_saved]
+            print(len(response), 'new')
+            new_tweets = response
+            # new_tweets = [t for t in response if t['id'] > newest_saved] # not necessary?
             all_tweets.extend(new_tweets)
             if not len(new_tweets):
                 break
             # set the maximum id allowed from the last tweet, and -1 to avoid duplicates
-            max_id = new_tweets[-1]['id'] - 1
+            max_id = max(el['id'] for el in new_tweets) - 1
             params['max_id'] = max_id
         print('retrieved', len(all_tweets), 'tweets')
         if all_tweets:
-            persistence.save_new_tweets(all_tweets)
+            persistence.save_tweets_from_user_id(all_tweets, user_id)
         return all_tweets
 
     def get_user_from_screen_name(self, screen_name):
