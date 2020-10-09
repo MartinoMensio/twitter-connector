@@ -38,6 +38,7 @@ def get_user(user_id):
     return user
 
 def get_user_tweets(user_id):
+    # from official API
     tweets = api.get_user_tweets(user_id)
     for t in tweets:
         _tweet_add_fields(t)
@@ -54,7 +55,7 @@ def get_friends_ids(user_id, limit):
 def get_friends_from_screen_name(screen_name, limit):
     print(screen_name)
     user = get_user_from_screen_name(screen_name)
-    print(user)
+    # print(user)
     friends_ids = get_friends_ids(user['id'], limit)
     return [get_user(user_id) for user_id in friends_ids]
 

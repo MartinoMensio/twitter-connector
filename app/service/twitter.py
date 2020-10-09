@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 import logging
 import twitterscraper
@@ -110,7 +111,14 @@ class TwitterAPI(object):
             if 'message' in response['error']:
                 raise Exception({'twitter': response['error']})
             raise Exception({'twitter': {'message': response['error']}})
-
+        
+        if not response:
+            retries = parameters.get('retries', 0)
+            if retries:
+                print('empty, retrying', retries)
+                parameters['retries'] -= 1
+                time.sleep(1)
+                return self.perform_get(parameters)
         return response
 
     def _cached_database_list(retrieve_item_from_db_fn, save_item_to_db_fn):
@@ -152,12 +160,13 @@ class TwitterAPI(object):
         return wrap
 
     def get_user_tweets(self, user_id, catch=False):
-        old_tweets = persistence.get_tweets_from_user_id(user_id)
-        print(len(old_tweets), 'old tweets')
+        tweet_ids = persistence.get_tweets_ids_from_user_id(user_id)
+        all_tweets = self.get_statuses_lookup(tweet_ids)
+        print(len(all_tweets), 'old tweets')
         params = {
             'user_id': user_id,
             'count': 200,
-            'trim_user': True, # lighter response
+            # 'trim_user': True, # lighter response
             'include_rts': 1, # also native retweets
             'exclude_replies': 'false', # also replies to other tweets
             'tweet_mode': 'extended', # to get the full content and all the URLs
@@ -167,8 +176,13 @@ class TwitterAPI(object):
         if newest_saved:
             params['since_id'] = newest_saved
         while True:
+            retries = 0
+            if 'max_id' in params:
+                # with this parameter, sometimes the Twitter API provides empty results on some profiles (e.g., realDonaldTrump).
+                # Retrying fixes it
+                retries = 10
             try:
-                response = self.perform_get({'url': 'https://api.twitter.com/1.1/statuses/user_timeline.json', 'params': params})
+                response = self.perform_get({'url': 'https://api.twitter.com/1.1/statuses/user_timeline.json', 'params': params, 'retries': retries})
             except Exception as e:
                 print(e)
                 if not catch:
@@ -176,6 +190,8 @@ class TwitterAPI(object):
                 return all_tweets
 
             print('.', end='', flush=True)
+            print(params)
+            # print(response)
             print(len(response), 'new')
             new_tweets = response
             # new_tweets = [t for t in response if t['id'] > newest_saved] # not necessary?
@@ -183,15 +199,17 @@ class TwitterAPI(object):
             if not len(new_tweets):
                 break
             # set the maximum id allowed from the last tweet, and -1 to avoid duplicates
-            max_id = max(el['id'] for el in new_tweets) - 1
-            params['max_id'] = max_id
+            oldest_found = min(el['id'] for el in new_tweets) - 1
+            params['max_id'] = oldest_found
         print('retrieved', len(all_tweets), 'tweets')
         if all_tweets:
             persistence.save_tweets_from_user_id(all_tweets, user_id)
         return all_tweets
 
     def get_user_from_screen_name(self, screen_name):
-        return self.perform_get({'url': 'https://api.twitter.com/1.1/users/show.json', 'params': {'screen_name': screen_name}})
+        result = self.perform_get({'url': 'https://api.twitter.com/1.1/users/show.json', 'params': {'screen_name': screen_name}})
+        persistence.save_twitter_user(result)
+        return result
 
     def get_friends_ids(self, user_id, limit=None):
         params = {
@@ -223,6 +241,7 @@ class TwitterAPI(object):
         # TODO docs say to use POST for larger requests
         result = []
         for chunk in split_in_chunks(tweet_ids, 100):
+            print('retrieving chunk of tweets from API')
             params = {
                 'id': ','.join([str(el) for el in chunk]),
                 'tweet_mode': 'extended' # no truncated tweets
