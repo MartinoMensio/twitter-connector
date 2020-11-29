@@ -101,4 +101,4 @@ def save_tweets_ids_by_url(url, tweets_ids):
     return tweets_by_url.replace_one({'_id': document['_id']}, document, upsert=True)
 
 def ping_db():
-    return db_twitter.command('ping')
+    return db.command('ping')
