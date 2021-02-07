@@ -1,5 +1,7 @@
 import re
+import email.utils
 from dateutil import parser
+from datetime import timedelta
 
 from . import twitter, persistence
 
@@ -39,7 +41,40 @@ def get_user(user_id):
 
 def get_user_tweets(user_id):
     # from official API
-    tweets = api.get_user_tweets(user_id)
+    user = get_user(user_id)
+    screen_name = user['screen_name']
+    tweets, oldest_tweet_id = api.get_user_tweets(user_id)
+    try:
+        # from snscraper, go back in time
+        max_total_tweets = 100000
+        if len(tweets) > 0 and len(tweets) < max_total_tweets and False:# and (5000 - len(tweets)):
+            oldest_tweet_l = api.get_statuses_lookup([oldest_tweet_id])
+            print(oldest_tweet_id, len(oldest_tweet_l))
+            if oldest_tweet_l:
+                oldest_tweet = oldest_tweet_l[0]
+                oldest_tweet_datetime = email.utils.parsedate_to_datetime(oldest_tweet['created_at'])
+                until = oldest_tweet_datetime + timedelta(days=1)
+                print('now adding tweets until', until)
+            else:
+                print('until not specified')
+                # error with that tweet? just search some tweets from this user
+                until = None
+            tweets_back = twitter.snscrape_get_tweets(screen_name, until, max_tweets=max_total_tweets)
+            # # add missing fields
+            # for t in tweets_back:
+            #     t['user'] = {'id': user_id, 'screen_name': screen_name}
+            # save to db
+            print('saving extra tweets')
+            tweets_corrected = api.get_statuses_lookup([el['id'] for el in tweets_back])
+            # now merge the results, removing duplicates
+            all_tweets = tweets + tweets_corrected
+            persistence.save_tweets_from_user_id(all_tweets, user_id)
+            tweets_by_id = {el['id']: el for el in all_tweets}
+            tweets = sorted(tweets_by_id.values(), key=lambda el: el['id'], reverse=True)
+
+    except Exception as e:
+        print('something wrong with snscrape, but continuing!')
+    print('total tweets', len(tweets))
     for t in tweets:
         _tweet_add_fields(t)
     return tweets

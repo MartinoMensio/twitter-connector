@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
-from pydantic import UrlStr
+from pydantic import AnyUrl
 
 from ..service import entity_manager
 from ..model import classes
@@ -8,7 +8,7 @@ from ..model import classes
 router = APIRouter()
 
 @router.get('/tweets', response_model=List[classes.Tweet])
-async def search_tweets(screen_name: str = None, url: UrlStr = None):
+async def search_tweets(screen_name: str = None, url: AnyUrl = None):
     if screen_name:
         try:
             return entity_manager.get_user_tweets_from_screen_name(screen_name)

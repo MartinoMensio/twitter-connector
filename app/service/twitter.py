@@ -1,7 +1,9 @@
 import os
 import time
+import tqdm
 import requests
 import logging
+import snscrape.modules
 import twitterscraper
 
 from . import persistence
@@ -163,6 +165,7 @@ class TwitterAPI(object):
         tweet_ids = persistence.get_tweets_ids_from_user_id(user_id)
         all_tweets = self.get_statuses_lookup(tweet_ids)
         print(len(all_tweets), 'old tweets')
+        oldest_found = None
         params = {
             'user_id': user_id,
             'count': 200,
@@ -177,34 +180,35 @@ class TwitterAPI(object):
             params['since_id'] = newest_saved
         while True:
             retries = 0
-            if 'max_id' in params:
+            if 'max_id' in params or 'since_id' in params:
                 # with this parameter, sometimes the Twitter API provides empty results on some profiles (e.g., realDonaldTrump).
-                # Retrying fixes it
-                retries = 10
+                # Retrying fixes it (then snscrape will think about the remaining if retries run out)
+                retries = 5
             try:
                 response = self.perform_get({'url': 'https://api.twitter.com/1.1/statuses/user_timeline.json', 'params': params, 'retries': retries})
             except Exception as e:
                 print(e)
                 if not catch:
                     raise e
-                return all_tweets
+                return all_tweets, oldest_found
 
             print('.', end='', flush=True)
-            print(params)
+            # print(params)
             # print(response)
             print(len(response), 'new')
             new_tweets = response
             # new_tweets = [t for t in response if t['id'] > newest_saved] # not necessary?
-            all_tweets.extend(new_tweets)
             if not len(new_tweets):
                 break
+            all_tweets.extend(new_tweets)
             # set the maximum id allowed from the last tweet, and -1 to avoid duplicates
-            oldest_found = min(el['id'] for el in new_tweets) - 1
-            params['max_id'] = oldest_found
+            oldest_found = min(el['id'] for el in new_tweets)
+            params['max_id'] = oldest_found - 1
         print('retrieved', len(all_tweets), 'tweets')
         if all_tweets:
             persistence.save_tweets_from_user_id(all_tweets, user_id)
-        return all_tweets
+        # return also the oldest tweet id just found, to manage data gaps with the other scraper 
+        return all_tweets, oldest_found
 
     def get_user_from_screen_name(self, screen_name):
         result = self.perform_get({'url': 'https://api.twitter.com/1.1/users/show.json', 'params': {'screen_name': screen_name}})
@@ -241,7 +245,7 @@ class TwitterAPI(object):
         # TODO docs say to use POST for larger requests
         result = []
         for chunk in split_in_chunks(tweet_ids, 100):
-            print('retrieving chunk of tweets from API')
+            # print('retrieving chunk of tweets from API')
             params = {
                 'id': ','.join([str(el) for el in chunk]),
                 'tweet_mode': 'extended' # no truncated tweets
@@ -266,3 +270,19 @@ def search(query, after_datetime):
     else:
         response = twitterscraper.query_tweets(query)
     return [t.tweet_id for t in response]
+
+
+def snscrape_get_tweets(screen_name, until=None, max_tweets=10000):
+    print('snscrape called...')
+    if until:
+        query = f'from:@{screen_name} until:{until.year}-{until.month}-{until.day}'
+    else:
+        query = f'from:@{screen_name}'
+
+    tweets = []
+    for i, tweet in enumerate(tqdm.tqdm(snscrape.modules.twitter.TwitterSearchScraper(query, convert_tweets=False).get_items())):
+        if i >= max_tweets:
+            break
+        tweets.append(tweet)
+    print('snscrape got', len(tweets), 'more tweets')
+    return tweets

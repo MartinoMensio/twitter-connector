@@ -1,6 +1,5 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Path
-from pydantic import UrlStr
 
 from ..service import entity_manager
 from ..model import classes

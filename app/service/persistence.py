@@ -17,6 +17,7 @@ db = client['twitter_connector']
 
 
 tweets_collection = db['tweets']
+tweets_collection_sns = db['tweets_sns']
 timelines_collection = db['timelines']
 users_collection = db['users']
 tweets_by_url = db['by_url']
@@ -76,7 +77,15 @@ def get_latest_tweet_id(user_id: int) -> int:
         ids_int = [int(el) for el in res['tweet_ids']]
         return max(ids_int)
     else:
-        return 0
+        return None
+
+def get_oldest_tweet_id(user_id: int) -> int:
+    res = timelines_collection.find_one({'_id': user_id})
+    if res:
+        ids_int = [int(el) for el in res['tweet_ids']]
+        return min(ids_int)
+    else:
+        return None
 
 
 def get_twitter_user(id):
@@ -93,6 +102,19 @@ def save_tweet(tweet):
     tweet['_id'] = tweet['id']
     return replace_safe(tweets_collection, tweet)
 
+# def save_new_tweets_sns(tweets):
+#     to_save = []
+#     for t in tweets:
+#         if '_id' not in t:
+#             t['_id'] = t['id']
+#             to_save.append(t)
+#             # tweets_collection.update({'_id': t['_id']}, t, upsert=True)
+#     if to_save:
+
+#         # return tweets_collection_sns.insert_many(to_save)
+#     else:
+#         return True
+
 def get_tweets_ids_by_url(url):
     return tweets_by_url.find_one({'_id': url})
 
@@ -101,4 +123,4 @@ def save_tweets_ids_by_url(url, tweets_ids):
     return tweets_by_url.replace_one({'_id': document['_id']}, document, upsert=True)
 
 def ping_db():
-    return db_twitter.command('ping')
+    return db.command('ping')

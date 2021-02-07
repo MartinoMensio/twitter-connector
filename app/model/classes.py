@@ -1,5 +1,5 @@
 from typing import List, Optional, ForwardRef
-from pydantic import BaseModel, UrlStr
+from pydantic import BaseModel, AnyUrl
 
 class User(BaseModel):
     screen_name: str
@@ -19,5 +19,6 @@ class Tweet(BaseModel):
     user_id: int
     user_screen_name: str
     created_at: str
+    lang: str
 
 Tweet.update_forward_refs()
