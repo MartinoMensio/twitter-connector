@@ -9,6 +9,8 @@ from . import twitter, persistence
 api = twitter.TwitterAPI()
 
 def _user_add_fields(user):
+    # https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/user-profile-images-and-banners
+    # normal (48x48), bigger (73x73), mini (24x24), original
     user['image'] = user['profile_image_url_https']
     user['image_full'] = re.sub(r'_normal(\.[a-zA-Z0-9]*)$',r'\1', user['profile_image_url_https'])
 

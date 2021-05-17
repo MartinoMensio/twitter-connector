@@ -2,11 +2,17 @@ from typing import List, Optional, ForwardRef
 from pydantic import BaseModel, AnyUrl
 
 class User(BaseModel):
-    screen_name: str
     id: str
+    screen_name: str
+    name: str
     image: str # some profiles can have an empty string (temporarily unavailable because it violates the Twitter Media Policy)
     image_full: str
     description: str
+    location: str
+    created_at: str
+    statuses_count: int
+    followers_count: int
+    friends_count: int
 
 # https://pydantic-docs.helpmanual.io/#postponed-annotations for recursive model
 ref = ForwardRef('Tweet')
