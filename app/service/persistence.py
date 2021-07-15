@@ -21,6 +21,10 @@ tweets_collection_sns = db['tweets_sns']
 timelines_collection = db['timelines']
 users_collection = db['users']
 tweets_by_url = db['by_url']
+# v2 of API
+users_collection_v2 = db['users_v2']
+tweets_collection_v2 = db['tweets_v2']
+since_id_collection_v2 = db['since_ids_v2']
 
 
 
@@ -121,6 +125,37 @@ def get_tweets_ids_by_url(url):
 def save_tweets_ids_by_url(url, tweets_ids):
     document = {'_id': url, 'url': url, 'tweets_ids': tweets_ids, 'updated': datetime.now()}
     return tweets_by_url.replace_one({'_id': document['_id']}, document, upsert=True)
+
+
+def save_twitter_user_v2(user: dict):
+    user['_id'] = user['id']
+    return replace_safe(users_collection_v2, user)
+
+def get_since_id_v2(user_id):
+    result = since_id_collection_v2.find_one({'_id': user_id})
+    if result:
+        return result['since_id']
+    else:
+        return None
+
+def save_since_id_v2(user_id, since_id):
+    item = {
+        '_id': user_id,
+        'since_id': since_id
+    }
+    return replace_safe(since_id_collection_v2, item)
+
+def get_tweets_v2(user_id: str):
+    user_id = str(user_id)
+    return tweets_collection_v2.find({'author_id': user_id})
+
+def save_tweets_v2(tweets):
+    for t in tweets:
+        if '_id' not in t:
+            # this tweet is new
+            t['_id'] = t['id']
+            tweets_collection_v2.update({'_id': t['_id']}, t, upsert=True)
+    return True
 
 def ping_db():
     return db.command('ping')

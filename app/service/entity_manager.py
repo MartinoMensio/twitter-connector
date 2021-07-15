@@ -1,10 +1,10 @@
+from app.service import twitter_v2
 import re
 import email.utils
 from dateutil import parser
 from datetime import timedelta
 
 from . import twitter, persistence
-
 
 api = twitter.TwitterAPI()
 
@@ -30,6 +30,7 @@ def get_user_from_screen_name(screen_name):
     user = api.get_user_from_screen_name(screen_name)
     _user_add_fields(user)
     # TODO add to persistence
+
     return user
 
 def get_user(user_id):
@@ -40,6 +41,12 @@ def get_user(user_id):
     user = users[0]
     _user_add_fields(user)
     return user
+
+def get_user_from_username_v2(username):
+    return twitter_v2.get_user_from_username(username)
+
+def get_user_tweets_v2(user_id, get_all, since_id):
+    return twitter_v2.get_tweets(user_id, get_all, since_id)
 
 def get_user_tweets(user_id):
     # from official API
