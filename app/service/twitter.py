@@ -1,13 +1,14 @@
 import os
 import time
+
+from requests.exceptions import HTTPError
 import tqdm
 import requests
 import logging
 import snscrape.modules
-import twitterscraper
+# import twitterscraper
 
 from . import persistence
-
 logger = logging.getLogger('twitterscraper')
 logger.setLevel(logging.WARNING)
 
@@ -162,7 +163,7 @@ class TwitterAPI(object):
         return wrap
 
     def get_user_tweets(self, user_id, catch=False):
-        tweet_ids = persistence.get_tweets_ids_from_user_id(user_id)
+        # tweet_ids = persistence.get_tweets_ids_from_user_id(user_id)
         all_tweets = self.get_statuses_lookup(tweet_ids)
         print(len(all_tweets), 'old tweets')
         oldest_found = None
@@ -175,7 +176,7 @@ class TwitterAPI(object):
             'tweet_mode': 'extended', # to get the full content and all the URLs
         }
         # limit backwards (if already collected)
-        newest_saved = persistence.get_latest_tweet_id(user_id)
+        # newest_saved = persistence.get_latest_tweet_id(user_id)
         if newest_saved:
             params['since_id'] = newest_saved
         while True:
@@ -206,13 +207,14 @@ class TwitterAPI(object):
             params['max_id'] = oldest_found - 1
         print('retrieved', len(all_tweets), 'tweets')
         if all_tweets:
-            persistence.save_tweets_from_user_id(all_tweets, user_id)
+            # persistence.save_tweets_from_user_id(all_tweets, user_id)
+            pass
         # return also the oldest tweet id just found, to manage data gaps with the other scraper 
         return all_tweets, oldest_found
 
     def get_user_from_screen_name(self, screen_name):
         result = self.perform_get({'url': 'https://api.twitter.com/1.1/users/show.json', 'params': {'screen_name': screen_name}})
-        persistence.save_twitter_user(result)
+        # persistence.save_twitter_user(result)
         return result
 
     def get_friends_ids(self, user_id, limit=None):
@@ -223,7 +225,7 @@ class TwitterAPI(object):
         response = self._cursor_request('https://api.twitter.com/1.1/friends/ids.json', params=params, limit=limit)
         return response
 
-    @_cached_database_list(persistence.get_twitter_user, persistence.save_twitter_user)
+    # @_cached_database_list(persistence.get_twitter_user, persistence.save_twitter_user)
     def get_users_lookup(self, id_list):
         # TODO docs say to use POST for larger requests
         # TODO cache flag to disable old results!!!
