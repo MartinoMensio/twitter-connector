@@ -163,7 +163,7 @@ class TwitterAPI(object):
         return wrap
 
     def get_user_tweets(self, user_id, catch=False):
-        # tweet_ids = persistence.get_tweets_ids_from_user_id(user_id)
+        tweet_ids = persistence.get_tweets_ids_from_user_id(user_id)
         all_tweets = self.get_statuses_lookup(tweet_ids)
         print(len(all_tweets), 'old tweets')
         oldest_found = None
@@ -176,7 +176,7 @@ class TwitterAPI(object):
             'tweet_mode': 'extended', # to get the full content and all the URLs
         }
         # limit backwards (if already collected)
-        # newest_saved = persistence.get_latest_tweet_id(user_id)
+        newest_saved = persistence.get_latest_tweet_id(user_id)
         if newest_saved:
             params['since_id'] = newest_saved
         while True:
