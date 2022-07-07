@@ -1,7 +1,8 @@
 requests
 pymongo
 git+https://github.com/MartinoMensio/snscrape.git
-twitterscraper
+# twitterscraper
+# git+https://github.com/WeatherAnchor/twitterscraper.git
 uvicorn
 fastapi
 python-dotenv

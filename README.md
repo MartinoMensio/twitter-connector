@@ -22,16 +22,16 @@ Add as many credentials as possible
 build the container:
 
 ```bash
-docker build -t mm34834/twitter_connector .
+docker build -t mm35626/twitter_connector .
 ```
 
 Run the container:
 
 locally:
 ```
-docker run -dit --restart always --name mm34834_twitter_connector -p 20200:8000 -e MONGO_HOST=mongo:27017 -v `pwd`:/app --link=mm35626_mongo:mongo mm34834/twitter_connector
+docker run -dit --restart always --name mm35626_twitter_connector -p 20200:8000 -e MONGO_HOST=mongo:27017 -v `pwd`:/app --link=mm35626_mongo:mongo mm34834/twitter_connector
 ```
 
 ```
-docker run -dit --restart always --name mm34834_twitter_connector -p 127.0.0.1:20200:8000 -e MONGO_HOST=mongo:27017 -v `pwd`:/app --link=mm34834_mongo:mongo mm34834/twitter_connector
+docker run -dit --restart always --name mm35626_twitter_connector -p 127.0.0.1:20200:8000 -e MONGO_HOST=mongo:27017 -v `pwd`:/app --link=mm35626_mongo:mongo mm35626/twitter_connector
 ```
