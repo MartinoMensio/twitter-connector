@@ -49,11 +49,11 @@ def save_tweets_from_user_id(tweets: List[dict], user_id: int):
             # this tweet is new
             t['_id'] = t['id']
             to_save.append(t)
-            tweets_collection.update({'_id': t['_id']}, t, upsert=True)
+            tweets_collection.update_one({'_id': t['_id']}, t, upsert=True)
     # tweets_collection.insert_many(tweets)
     old_tweet_ids = get_tweets_ids_from_user_id(user_id)
     updated_tweet_ids = sorted(set(old_tweet_ids + tweet_ids), reverse=True)
-    timelines_collection.update({'_id': user_id}, {
+    timelines_collection.update_one({'_id': user_id}, {
         '_id': user_id,
         'last_updated': now,
         'tweet_ids': updated_tweet_ids
@@ -112,7 +112,7 @@ def save_tweet(tweet):
 #         if '_id' not in t:
 #             t['_id'] = t['id']
 #             to_save.append(t)
-#             # tweets_collection.update({'_id': t['_id']}, t, upsert=True)
+#             # tweets_collection.update_one({'_id': t['_id']}, t, upsert=True)
 #     if to_save:
 
 #         # return tweets_collection_sns.insert_many(to_save)
@@ -154,7 +154,7 @@ def save_tweets_v2(tweets):
         if '_id' not in t:
             # this tweet is new
             t['_id'] = t['id']
-            tweets_collection_v2.update({'_id': t['_id']}, t, upsert=True)
+            tweets_collection_v2.update_one({'_id': t['_id']}, t, upsert=True)
     return True
 
 def ping_db():
