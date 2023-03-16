@@ -5,7 +5,7 @@ from requests.exceptions import HTTPError
 import tqdm
 import requests
 import logging
-import snscrape.modules
+# import snscrape.modules
 # import twitterscraper
 
 from . import persistence

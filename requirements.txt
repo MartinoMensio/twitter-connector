@@ -1,6 +1,6 @@
 requests
 pymongo
-git+https://github.com/MartinoMensio/snscrape.git
+# git+https://github.com/MartinoMensio/snscrape.git
 # twitterscraper
 # git+https://github.com/WeatherAnchor/twitterscraper.git
 uvicorn
