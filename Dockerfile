@@ -1,8 +1,21 @@
-FROM python:3.11-slim
+FROM python:3.11 as builder
 
-COPY requirements.txt /app/
 WORKDIR /app
+# install dependencies
+RUN pip install pdm
+# gcc may be needed for some dependencies
+RUN apt-get update && apt-get install -y gcc
 
-RUN pip install -r requirements.txt
+# ADD requirements.txt /app/requirements.txt
+COPY pyproject.toml pdm.lock README.md /app/
+# RUN pip install .
+# install pdm in .venv by default
+RUN pdm install --prod --no-lock --no-editable
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--workers", "4"]
+# run stage
+FROM python:3.11-slim as production
+WORKDIR /app
+COPY --from=builder /app /app
+COPY app /app/app
+# set environment as part of CMD because pdm installs there
+CMD . .venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --workers 4
