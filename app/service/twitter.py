@@ -32,11 +32,12 @@ class TwitterAPI(object):
             secret = os.environ["TWITTER_SECRET_{}".format(self.active)]
             self.credentials.append({"key": key, "secret": secret})
             token = self.get_bearer_token(key, secret)
-            self.bearer_tokens.append(token)
-            self.alive = True
-            self.active += 1
+            if token:
+                self.bearer_tokens.append(token)
+                self.alive = True
+                self.active += 1
         if not self.bearer_tokens:
-            raise ValueError("you don't have twitter credentials in the environment!!!")
+            print("you don't have twitter credentials in the environment!!!")
         print("twitter tokens available:", len(self.bearer_tokens))
         self.active = 0
 
@@ -46,6 +47,9 @@ class TwitterAPI(object):
             data={"grant_type": "client_credentials"},
             auth=requests.auth.HTTPBasicAuth(key, secret),
         ).json()
+        if "errors" in response:
+            # disabled key or something else
+            return None
         assert response["token_type"] == "bearer"
         return response["access_token"]
 

@@ -4,9 +4,10 @@ import email.utils
 from dateutil import parser
 from datetime import timedelta
 
-from . import twitter, persistence
+from . import persistence  # , twitter
 
-api = twitter.TwitterAPI()
+# TODO replace with twitter_v2, right now could be needed somewhere!!!
+# api = twitter.TwitterAPI()
 
 
 def _user_add_fields(user):
