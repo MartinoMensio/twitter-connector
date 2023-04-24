@@ -58,6 +58,10 @@ def get_user_tweets_v2(user_id, get_all, since_id):
     return twitter_v2.get_tweets(user_id, get_all, since_id)
 
 
+def get_tweet_v2(tweet_id):
+    return twitter_v2.get_tweet(tweet_id)
+
+
 def get_user_tweets(user_id):
     # from official API
     user = get_user(user_id)

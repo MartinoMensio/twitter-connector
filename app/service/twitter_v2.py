@@ -84,6 +84,32 @@ def get_tweets(user_id: str, get_all=False, until_id=None):
     }
 
 
+def get_tweet(tweet_id: str):
+    params = {
+        "tweet.fields": "entities,created_at,lang,text,referenced_tweets,author_id",
+        "expansions": "author_id",
+        "user.fields": "name,username,profile_image_url,verified,created_at,description,location,protected,public_metrics",
+    }
+    res = requests.get(
+        f"https://api.twitter.com/2/tweets/{tweet_id}",
+        params=params,
+        headers=headers,
+    )
+    res.raise_for_status()
+    res_json = res.json()
+    if "errors" in res_json:
+        # TODO raise errors for NotFound, ...
+        print(res_json)
+        raise ValueError(res_json)
+    result = res_json["data"]
+    result["author"] = res_json["includes"]["users"][0]
+    result["author"]["image_full"] = result["author"]["profile_image_url"].replace(
+        "_normal", ""
+    )
+    # persistence.save_twitter_user_v2(result)
+    return result
+
+
 # def get_timeline(user_id: str):
 #     user_id = str(user_id)
 #     params = {

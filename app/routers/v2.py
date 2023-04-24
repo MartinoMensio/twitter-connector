@@ -22,3 +22,8 @@ async def search_user(username: str):
 async def search_user(user_id: str, get_all=False, until_id: str = None):
     get_all = str(get_all).lower() not in ["f", "false", "no"]
     return entity_manager.get_user_tweets_v2(user_id, get_all, until_id)
+
+
+@router.get("/tweets/{tweet_id}")
+async def get_tweet(tweet_id: str):
+    return entity_manager.get_tweet_v2(tweet_id)
