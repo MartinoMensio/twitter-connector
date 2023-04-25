@@ -110,6 +110,21 @@ def get_tweet(tweet_id: str):
     return result
 
 
+def ping_api():
+    res = requests.get(
+        f"https://api.twitter.com/2/tweets/search/recent",
+        headers=headers,
+        params={"query": "from:twitterdev", "max_results": 10},
+    )
+    res.raise_for_status()
+    res_json = res.json()
+    if "errors" in res_json:
+        # TODO raise errors for NotFound, ...
+        print(res_json)
+        raise ValueError(res_json)
+    return res_json
+
+
 # def get_timeline(user_id: str):
 #     user_id = str(user_id)
 #     params = {

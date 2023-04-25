@@ -1,8 +1,7 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 
-from ..service import entity_manager, persistence
-from ..model import classes
+from ..service import twitter_v2, persistence
 
 router = APIRouter()
 
@@ -17,7 +16,11 @@ def get_status():
         mongo_status = "exception"
 
     # how is the API dealing with things?
-    api_ok = entity_manager.api.alive
+    try:
+        api_ok = twitter_v2.ping_api()
+    except Exception as e:
+        print(e)
+        api_ok = False
     api_status = "ok" if api_ok else "error"
 
     # overall
