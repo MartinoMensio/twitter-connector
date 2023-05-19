@@ -1,4 +1,6 @@
 {
-    "python.pythonPath": "venv/bin/python3.7",
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "none",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    }
 }
