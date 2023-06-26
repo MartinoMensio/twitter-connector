@@ -15,6 +15,7 @@ async def search_user(username: str):
     try:
         return entity_manager.get_user_from_username_v2(username)
     except Exception as e:
+        print(e)
         raise ValueError("TODO")
 
 
