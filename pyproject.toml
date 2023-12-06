@@ -4,9 +4,7 @@
 name = "twitter_connector"
 version = "0.1.0"
 description = "Twitter connector for MisinfoMe"
-authors = [
-    {name = "Martino Mensio", email = "martino.mensio@open.ac.uk"},
-]
+authors = [{ name = "Martino Mensio", email = "martino.mensio@open.ac.uk" }]
 dependencies = [
     "requests",
     "pymongo",
@@ -14,16 +12,17 @@ dependencies = [
     "fastapi",
     "python-dotenv",
     "python-dateutil",
-    "tqdm"
+    "tqdm",
+    # the following are for security constraints
+    "certifi>=2023.11.17",
+    "urllib3>=1.26.18",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
 
-[tool.pdm.dev-dependencies]  # This is dev dependencies
-dev1 = [
-    "black", "pytest"
-]
+[tool.pdm.dev-dependencies] # This is dev dependencies
+dev1 = ["black", "pytest"]
 
 [build-system]
 requires = ["pdm-pep517>=1.0.0"]
