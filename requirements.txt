@@ -29,4 +29,4 @@ starlette==0.35.1
 tqdm==4.66.1
 typing-extensions==4.8.0
 urllib3==2.1.0
-uvicorn==0.25.0
+uvicorn==0.26.0
